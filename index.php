@@ -13,10 +13,12 @@ require 'fpdf/fpdf.php';
 require 'helpers/NumeroALetras.php';
 
 define('MONEDA', '$');
+define('MONEDA_LETRA', 'pesos');
+define('MONEDA_DECIMAL', 'centavos');
 
 $idVenta = isset($_GET['id']) ? $mysqli->real_escape_string($_GET['id']) : 1;
 
-$sqlVenta = "SELECT folio, total, DATE_FORMAT(fecha,'%d/%m/%Y') AS _fecha, DATE_FORMAT(fecha,'%H:%i') AS hora
+$sqlVenta = "SELECT folio, total, DATE_FORMAT(fecha,'%d/%m/%Y') AS fecha_venta, DATE_FORMAT(fecha,'%H:%i') AS hora
 FROM ventas WHERE id = $idVenta LIMIT 1";
 $resultado = $mysqli->query($sqlVenta);
 $row_venta = $resultado->fetch_assoc();
@@ -26,7 +28,7 @@ $total = number_format($row_venta['total'], 2, '.');
 $sqlDetalle = "SELECT nombre, cantidad, precio FROM detalle_venta WHERE id_venta = $idVenta";
 $resultadoDetalle = $mysqli->query($sqlDetalle);
 
-$pdf = new FPDF('P', 'mm', array(80, 150));
+$pdf = new FPDF('P', 'mm', array(80, 200));
 $pdf->AddPage();
 $pdf->SetMargins(5, 5, 5);
 $pdf->SetFont('Arial', 'B', 9);
@@ -54,6 +56,7 @@ $pdf->Cell(15, 4, 'Importe', 0, 1, 'C');
 $pdf->Cell(70, 2, '-------------------------------------------------------------------------', 0, 1, 'L');
 
 $totalProductos = 0;
+$pdf->SetFont('Arial', '', 7);
 
 while ($row_detalle = $resultadoDetalle->fetch_assoc()) {
     $importe = number_format($row_detalle['cantidad'] * $row_detalle['precio'], 2, '.', ',');
@@ -84,11 +87,11 @@ $pdf->Cell(70, 5, sprintf('Total: %s  %s', MONEDA, number_format($total, 2, '.',
 $pdf->Ln(2);
 
 $pdf->SetFont('Arial', '', 8);
-$pdf->MultiCell(70, 4, 'Son ' . strtolower(NumeroALetras::convertir($total, 'dolares', 'centavos')), 0, 'L', 0);
+$pdf->MultiCell(70, 4, 'Son ' . strtolower(NumeroALetras::convertir($total, MONEDA_LETRA, MONEDA_DECIMAL)), 0, 'L', 0);
 
 $pdf->Ln();
 
-$pdf->Cell(35, 5, 'Fecha: ' . $row_venta['_fecha'], 0, 0, 'C');
+$pdf->Cell(35, 5, 'Fecha: ' . $row_venta['fecha_venta'], 0, 0, 'C');
 $pdf->Cell(35, 5, 'Hora: ' . $row_venta['hora'], 0, 1, 'C');
 
 $pdf->Ln();

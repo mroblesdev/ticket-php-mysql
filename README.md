@@ -15,7 +15,14 @@ Este proyecto muestra la generación de un ticket de venta en PDF con informaci�
 
    - De forma predefinida el ticket se genera con los datos de la venta con id 1.
    - Para generar el ticket de otra venta debes enviar el id como argumento, por ejemplo:
-   ```http://localhost/nombre_de_tu_carpeta/index.php?id=5```
+   ```http://localhost/nombre_de_tu_carpeta/index.php?id=5```.
+   - Puedes configurar el símbolo, nombre y decimales de la moneda según el país.
+
+      ```php
+      define('MONEDA', '$');
+      define('MONEDA_LETRA', 'pesos');
+      define('MONEDA_DECIMAL', 'centavos');
+      ```
 
 ## Expresiones de Gratitud 🎁
 
