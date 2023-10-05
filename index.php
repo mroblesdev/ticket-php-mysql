@@ -18,9 +18,20 @@ define('MONEDA_DECIMAL', 'centavos');
 
 $idVenta = isset($_GET['id']) ? $mysqli->real_escape_string($_GET['id']) : 1;
 
+if (filter_var($idVenta, FILTER_VALIDATE_INT) === false) {
+    $idVenta = 1;
+}
+
 $sqlVenta = "SELECT folio, total, DATE_FORMAT(fecha,'%d/%m/%Y') AS fecha_venta, DATE_FORMAT(fecha,'%H:%i') AS hora
 FROM ventas WHERE id = $idVenta LIMIT 1";
 $resultado = $mysqli->query($sqlVenta);
+
+$numeroFilas = $resultado->num_rows;
+if ($numeroFilas == 0) {
+    echo 'No hay datos que coincidan con la consulta';
+    exit;
+}
+
 $row_venta = $resultado->fetch_assoc();
 
 $total = number_format($row_venta['total'], 2, '.');
@@ -77,6 +88,8 @@ while ($row_detalle = $resultadoDetalle->fetch_assoc()) {
     $pdf->SetY($yFin);
 }
 
+$resultadoDetalle->close();
+
 $pdf->Ln();
 
 $pdf->Cell(70, 4, mb_convert_encoding('Número de articulos:  ' . $totalProductos, 'ISO-8859-1', 'UTF-8'), 0, 1, 'L');
@@ -98,6 +111,7 @@ $pdf->Ln();
 
 $pdf->MultiCell(70, 5, 'AGRADECEMOS SU PREFERENCIA VUELVA PRONTO!!!', 0, 'C');
 
+$resultado->close();
 $mysqli->close();
 
 $pdf->Output();
